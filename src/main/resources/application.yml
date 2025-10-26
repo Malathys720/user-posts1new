@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: user-posts
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: user-posts-group
+      # Wrap deserializers so deserialization errors are handled by Spring Kafka error handlers
+      key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        # delegate deserializers used by ErrorHandlingDeserializer
+        spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+
+        # allow your DTO package (plus common java packages)
+        spring.json.trusted.packages: "java.util,java.lang,com.UserPost.user_posts.dto"
+
+        # If the producer does NOT include Spring type headers (__TypeId__), uncomment these:
+        # spring.json.use.type.headers: false
+        # spring.json.value.default.type: com.UserPost.user_posts.dto.MergedPostDto
+
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/userposts?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root@123
+
+
+  jpa:
+   show-sql: true
+   hibernate.ddl-auto: update
+   properties.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
+
+kafka:
+  topic: user-posts
+server:
+  port: 8083
